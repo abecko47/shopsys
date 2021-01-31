@@ -1,0 +1,72 @@
+name: Tests
+
+on:
+    push:
+    pull_request:
+
+jobs:
+
+    integration:
+        name: Integration
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:12.1-alpine
+                ports:
+                    - 5432:5432
+                env:
+                    POSTGRES_USER: 'root'
+                    POSTGRES_PASSWORD: 'root'
+                    POSTGRES_DB: 'shopsys'
+            redis:
+                image: redis:5.0-alpine
+                ports:
+                    - 6379:6379
+            selenium-server:
+                image: selenium/standalone-chrome:3.141.5
+                ports:
+                    - 4400:4444
+                env:
+                    HUB_PORT_4444_TCP_ADDR: 'hub'
+                    HUB_PORT_4444_TCP_PORT: '4444'
+            elasticsearch:
+                image: shopsysbot/elasticsearch:gitlab-action-b27c119697df5e903acbba9d97aaae33
+                ports:
+                    - 9200:9200
+                env:
+                    discovery.type: 'single-node'
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v2
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    coverage: "none"
+                    extensions: "bcmath,ctype,curl,dom,fileinfo,filter,gd,iconv,intl,json,libxml,mbstring,openssl,pdo,pdo,redis,simplexml,tokenizer,xml"
+                    ini-values: "memory_limit=-1"
+                    php-version: "7.4"
+                    tools: pecl
+
+            -   uses: actions/setup-node@v2
+                with:
+                    node-version: '10'
+
+            -   name: Display versions
+                run: |
+                    php -r 'foreach (get_loaded_extensions() as $extension) echo $extension . " " . phpversion($extension) . PHP_EOL;'
+                    php -i
+
+            -   name: Install dependencies
+                run: |
+                    echo "::group::composer update"
+                    composer update --no-progress --ansi
+                    echo "::endgroup::"
+
+            -   name: Run build
+                env:
+                    DATABASE_HOST: 'localhost'
+                    ELASTICSEARCH_HOST: 'localhost:9200'
+                    REDIS_HOST: 'localhost'
+                run: ./phing db-create test-db-create build-demo-dev
