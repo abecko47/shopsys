@@ -13,3 +13,8 @@ There you can find links to upgrade notes for other versions too.
 
 - update annotations for EntityExtensionTest.php ([#2197](https://github.com/shopsys/shopsys/pull/2197))
     - see #project-base-diff to update your project
+
+- update helios-ag/fm-elfinder-bundle to version ^10.1 ([#2217](https://github.com/shopsys/shopsys/pull/2217))
+    - if you have updated the `assets` phing target, you should remove `shopsys:elfinder:post-install` call
+      and add `--docroot` option for `elfinder:install` command. See PR for inspiration
+    - see #project-base-diff to update your project
