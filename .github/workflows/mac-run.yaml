@@ -1,0 +1,21 @@
+on: [push]
+name: "MacOS test"
+jobs:
+    mac-os-test:
+        name: Docker on MacOS test
+        runs-on: macos-latest
+
+        steps:
+            -   name: GIT checkout branch - ${{ github.ref }}
+                uses: actions/checkout@v2
+                with:
+                    ref: ${{ github.ref }}
+            -   name: Setup Docker
+                uses: docker-practice/actions-setup-docker@master
+                with:
+                    docker_channel: stable
+            -   name: Test docker
+                run: |
+                    docker run --rm hello-world
+                    docker-compose --version
+                    docker-sync --version
