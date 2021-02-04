@@ -37,5 +37,9 @@ There you can find links to upgrade notes for other versions too.
     - see #project-base-diff to update your project
 
 - Frontend API: correctly inherited base type in `AdvertCodeDecorator`, `AdvertImageDecorator`, `ProductPriceDecorator` types ([#2222](https://github.com/shopsys/shopsys/pull/2222))
-  - if you extended `Advert` type, you can remove duplicate definitions in `AdvertCode` and `AdvertImage` types
-  - if you extended `Price` type, you can remove duplicate definitions in `ProductPrice` type
+    - if you extended `Advert` type, you can remove duplicate definitions in `AdvertCode` and `AdvertImage` types
+    - if you extended `Price` type, you can remove duplicate definitions in `ProductPrice` type
+
+- improve acceptance test of product filter ([#2226](https://github.com/shopsys/shopsys/pull/2226))
+    - see #project-base-diff to update your project
+    - we have also improved displaying of price filter in our basic design, decide if such change is suitable for your project
