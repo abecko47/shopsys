@@ -7,6 +7,7 @@ namespace Shopsys\FrameworkBundle\Component\Elasticsearch;
 use Doctrine\ORM\EntityManagerInterface;
 use Shopsys\FrameworkBundle\Component\Console\ProgressBarFactory;
 use Shopsys\FrameworkBundle\Component\Doctrine\SqlLoggerFacade;
+use Shopsys\FrameworkBundle\Component\Elasticsearch\Exception\ElasticsearchIndexAlreadyExists;
 use Shopsys\FrameworkBundle\Component\Elasticsearch\Exception\ElasticsearchNoAliasException;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -189,13 +190,19 @@ class IndexFacade
         $domainId = $indexDefinition->getDomainId();
 
         try {
-            $existingIndexName = $this->indexRepository->findCurrentIndexNameForAlias(
-                $indexDefinition->getIndexAlias()
-            );
+            try {
+                $existingIndexName = $this->indexRepository->findCurrentIndexNameForAlias(
+                    $indexDefinition->getIndexAlias()
+                );
+            } catch (ElasticsearchNoAliasException $exception) {
+                $existingIndexName = $this->indexRepository->findCurrentIndexNameForAlias(
+                    $indexDefinition->getLegacyIndexAlias()
+                );
+            }
         } catch (ElasticsearchNoAliasException $exception) {
-            $existingIndexName = $this->indexRepository->findCurrentIndexNameForAlias(
-                $indexDefinition->getLegacyIndexAlias()
-            );
+            $output->writeln(sprintf('No index for alias "%s" was not found on domain "%s"', $indexName, $domainId));
+            $this->create($indexDefinition, $output);
+            return;
         }
 
         if ($existingIndexName === $indexDefinition->getVersionedIndexName()) {
