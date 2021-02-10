@@ -63,7 +63,20 @@ class IndexFacade
             $indexDefinition->getDomainId()
         ));
 
-        $this->indexRepository->createIndex($indexDefinition);
+        try {
+            $this->indexRepository->createIndex($indexDefinition);
+        } catch (ElasticsearchIndexAlreadyExists $exception) {
+            $output->writeln(sprintf(
+                'Index "%s" was not created on domain "%s" because it has already exist',
+                $indexDefinition->getIndexName(),
+                $indexDefinition->getDomainId()
+            ));
+        }
+        $output->writeln(sprintf(
+            'Creating alias for index "%s" on domain "%s"',
+            $indexDefinition->getIndexName(),
+            $indexDefinition->getDomainId()
+        ));
         $this->indexRepository->createAlias($indexDefinition);
     }
 
@@ -211,7 +224,17 @@ class IndexFacade
         }
 
         $output->writeln(sprintf('Migrating index "%s" on domain "%s"', $indexName, $domainId));
-        $this->indexRepository->createIndex($indexDefinition);
+
+        try {
+            $this->indexRepository->createIndex($indexDefinition);
+        } catch (ElasticsearchIndexAlreadyExists $exception) {
+            $output->writeln(sprintf(
+                'Index "%s" was not created on domain "%s" because it has already exist',
+                $indexDefinition->getIndexName(),
+                $indexDefinition->getDomainId()
+            ));
+        }
+
         $this->indexRepository->reindex($existingIndexName, $indexDefinition->getVersionedIndexName());
         $this->indexRepository->createAlias($indexDefinition);
         $this->indexRepository->deleteIndex($existingIndexName);
