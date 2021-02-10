@@ -111,6 +111,18 @@ class IndexFacade
         $this->sqlLoggerFacade->temporarilyDisableLogging();
 
         $indexAlias = $indexDefinition->getIndexAlias();
+
+        try {
+            $this->indexRepository->findCurrentIndexNameForAlias($indexAlias);
+        } catch (ElasticsearchNoAliasException $exception) {
+            $output->writeln(sprintf(
+                'Index "%s" does not exist on domain "%s"',
+                $indexDefinition->getIndexName(),
+                $indexDefinition->getDomainId()
+            ));
+            $this->create($indexDefinition, $output);
+        }
+
         $domainId = $indexDefinition->getDomainId();
         $progressBar = $this->progressBarFactory->create(
             $output,
