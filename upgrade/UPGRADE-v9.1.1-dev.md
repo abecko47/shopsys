@@ -39,3 +39,7 @@ There you can find links to upgrade notes for other versions too.
 - Frontend API: correctly inherited base type in `AdvertCodeDecorator`, `AdvertImageDecorator`, `ProductPriceDecorator` types ([#2222](https://github.com/shopsys/shopsys/pull/2222))
   - if you extended `Advert` type, you can remove duplicate definitions in `AdvertCode` and `AdvertImage` types
   - if you extended `Price` type, you can remove duplicate definitions in `ProductPrice` type
+
+- deprecated method `Shopsys\FrameworkBundle\Component\Elasticsearch\Exception\ElasticsearchIndexException::indexAlreadyExists()` ([#2233](https://github.com/shopsys/shopsys/pull/2233))
+    - avoid using deprecated method for creating the exception
+    - you should throw `Shopsys\FrameworkBundle\Component\Elasticsearch\Exception\ElasticsearchNoAliasException` directly
